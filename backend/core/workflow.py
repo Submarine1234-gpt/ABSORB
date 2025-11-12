@@ -10,7 +10,7 @@ from ase.constraints import FixAtoms
 from .calculators import CalculatorFactory
 from .site_finder import HollowSiteFinder, OnTopSiteFinder
 from .optimizers import RotationOptimizer
-from ..utils import get_session_logger
+from utils import get_session_logger
 
 
 class SurfaceAdsorptionWorkflow:

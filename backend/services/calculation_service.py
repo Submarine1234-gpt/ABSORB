@@ -96,7 +96,7 @@ class CalculationService:
             log_file: Path to log file
         """
         # Import here to avoid circular dependencies
-        from ..core import SurfaceAdsorptionWorkflow
+        from core import SurfaceAdsorptionWorkflow
         
         # Add session_id to params for logging
         workflow = SurfaceAdsorptionWorkflow(**params)
