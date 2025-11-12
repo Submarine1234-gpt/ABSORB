@@ -82,5 +82,15 @@ export default {
   async checkHealth() {
     const response = await api.get('/api/health')
     return response.data
+  },
+
+  /**
+   * Get surface mesh data
+   * @param {string} sessionId - Session identifier
+   * @returns {Promise} Mesh data with vertices, triangles, and energies
+   */
+  async getMeshData(sessionId) {
+    const response = await api.get(`/api/visualization/${sessionId}/surface_mesh.json`)
+    return response.data
   }
 }

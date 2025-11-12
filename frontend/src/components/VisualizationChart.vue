@@ -1,18 +1,85 @@
 <template>
   <div class="visualization-chart">
-    <h3 class="card-title">3D Visualization</h3>
-    <div v-if="loading" class="loading">Loading visualization data...</div>
-    <div v-else-if="error" class="alert alert-error">{{ error }}</div>
-    <div v-else ref="plotContainer" class="plot-container"></div>
+    <el-tabs v-model="activeTab" type="border-card">
+      <el-tab-pane name="scatter">
+        <template #label>
+          <span>
+            <el-icon><Histogram /></el-icon>
+            Scatter Plot
+          </span>
+        </template>
+        
+        <div v-if="loading" class="loading-container">
+          <el-skeleton :rows="8" animated />
+        </div>
+        <div v-else-if="error">
+          <el-alert
+            :title="error"
+            type="error"
+            :closable="false"
+            show-icon
+          />
+        </div>
+        <div v-else ref="plotContainer" class="plot-container"></div>
+      </el-tab-pane>
+      
+      <el-tab-pane name="heatmap">
+        <template #label>
+          <span>
+            <el-icon><TrendCharts /></el-icon>
+            Heat Map
+          </span>
+        </template>
+        
+        <div v-if="loading" class="loading-container">
+          <el-skeleton :rows="8" animated />
+        </div>
+        <div v-else-if="error">
+          <el-alert
+            :title="error"
+            type="error"
+            :closable="false"
+            show-icon
+          />
+        </div>
+        <div v-else ref="heatmapContainer" class="plot-container"></div>
+      </el-tab-pane>
+      
+      <el-tab-pane name="mesh">
+        <template #label>
+          <span>
+            <el-icon><Grid /></el-icon>
+            Surface Mesh
+          </span>
+        </template>
+        
+        <MeshControls :options="meshOptions" @update-options="handleMeshOptionsUpdate" />
+        <SurfaceMeshViewer 
+          v-if="sessionId"
+          :session-id="sessionId"
+          :mesh-options="meshOptions"
+        />
+      </el-tab-pane>
+    </el-tabs>
   </div>
 </template>
 
 <script>
+import { Histogram, TrendCharts, Grid } from '@element-plus/icons-vue'
 import Plotly from 'plotly.js-dist-min'
 import api from '../services/api'
+import SurfaceMeshViewer from './SurfaceMeshViewer.vue'
+import MeshControls from './MeshControls.vue'
 
 export default {
   name: 'VisualizationChart',
+  components: {
+    Histogram,
+    TrendCharts,
+    Grid,
+    SurfaceMeshViewer,
+    MeshControls
+  },
   props: {
     sessionId: {
       type: String,
@@ -25,10 +92,16 @@ export default {
   },
   data() {
     return {
+      activeTab: 'scatter',
       loading: false,
       error: null,
       surfaceData: null,
-      sitesData: null
+      sitesData: null,
+      meshOptions: {
+        wireframe: false,
+        opacity: 1.0,
+        colorScheme: 'viridis'
+      }
     }
   },
   watch: {
@@ -41,8 +114,17 @@ export default {
     displayOptions: {
       deep: true,
       handler() {
-        this.updatePlot()
+        this.updatePlots()
       }
+    },
+    activeTab(newTab) {
+      this.$nextTick(() => {
+        if (newTab === 'scatter') {
+          this.updateScatterPlot()
+        } else if (newTab === 'heatmap') {
+          this.updateHeatmap()
+        }
+      })
     }
   },
   methods: {
@@ -58,7 +140,7 @@ export default {
         
         this.surfaceData = surface
         this.sitesData = sites
-        this.updatePlot()
+        this.updatePlots()
       } catch (error) {
         this.error = 'Failed to load visualization data'
         console.error(error)
@@ -67,7 +149,17 @@ export default {
       }
     },
     
-    updatePlot() {
+    updatePlots() {
+      this.$nextTick(() => {
+        if (this.activeTab === 'scatter') {
+          this.updateScatterPlot()
+        } else if (this.activeTab === 'heatmap') {
+          this.updateHeatmap()
+        }
+      })
+    },
+    
+    updateScatterPlot() {
       if (!this.sitesData || !this.$refs.plotContainer) return
       
       const traces = []
@@ -83,10 +175,11 @@ export default {
           z: coords.map(c => c[2]),
           marker: {
             size: 3,
-            color: '#999',
+            color: '#909399',
             opacity: 0.5
           },
-          name: 'Surface Atoms'
+          name: 'Surface Atoms',
+          hoverinfo: 'x+y+z'
         })
       }
       
@@ -100,23 +193,24 @@ export default {
         traces.push({
           type: 'scatter3d',
           mode: 'markers',
-          x: sites.map(s => s.coords[0]),
-          y: sites.map(s => s.coords[1]),
-          z: sites.map(s => s.coords[2]),
+          x: sites.map(s => s.position[0]),
+          y: sites.map(s => s.position[1]),
+          z: sites.map(s => s.position[2]),
           marker: {
-            size: 8,
-            color: this.displayOptions.colorByEnergy ? energies : '#667eea',
-            colorscale: 'Viridis',
-            showscale: this.displayOptions.colorByEnergy,
-            colorbar: {
+            size: 6,
+            color: this.displayOptions.colorByEnergy ? energies : '#409EFF',
+            colorscale: this.displayOptions.colorByEnergy ? 'Viridis' : undefined,
+            colorbar: this.displayOptions.colorByEnergy ? {
               title: 'Energy (eV)',
-              x: 1.1
-            },
+              thickness: 15,
+              len: 0.7
+            } : undefined,
             cmin: minEnergy,
-            cmax: maxEnergy
+            cmax: maxEnergy,
+            opacity: 0.8
           },
-          text: sites.map(s => `Energy: ${s.energy.toFixed(4)} eV`),
-          hoverinfo: 'text',
+          text: sites.map(s => `Energy: ${s.energy?.toFixed(3) || 'N/A'} eV<br>Type: ${s.type}`),
+          hoverinfo: 'text+x+y+z',
           name: 'Adsorption Sites'
         })
       }
@@ -126,34 +220,104 @@ export default {
           xaxis: { title: 'X (Å)' },
           yaxis: { title: 'Y (Å)' },
           zaxis: { title: 'Z (Å)' },
-          aspectmode: 'data'
+          camera: {
+            eye: { x: 1.5, y: 1.5, z: 1.5 }
+          }
         },
         margin: { l: 0, r: 0, t: 0, b: 0 },
         showlegend: true,
-        legend: { x: 0, y: 1 }
+        legend: {
+          x: 0,
+          y: 1
+        },
+        hovermode: 'closest'
       }
       
       const config = {
         responsive: true,
         displayModeBar: true,
-        modeBarButtonsToRemove: ['toImage']
+        displaylogo: false
       }
       
       Plotly.newPlot(this.$refs.plotContainer, traces, layout, config)
+    },
+    
+    updateHeatmap() {
+      if (!this.sitesData || !this.$refs.heatmapContainer) return
+      
+      const sites = this.sitesData.sites || []
+      if (sites.length === 0) return
+      
+      // Create 2D heatmap projection
+      const x = sites.map(s => s.position[0])
+      const y = sites.map(s => s.position[1])
+      const z = sites.map(s => s.energy)
+      
+      const trace = {
+        type: 'scatter',
+        mode: 'markers',
+        x: x,
+        y: y,
+        marker: {
+          size: 12,
+          color: z,
+          colorscale: 'Viridis',
+          colorbar: {
+            title: 'Energy (eV)',
+            thickness: 15
+          },
+          showscale: true
+        },
+        text: sites.map(s => `Energy: ${s.energy?.toFixed(3) || 'N/A'} eV`),
+        hoverinfo: 'text+x+y',
+        name: 'Adsorption Sites'
+      }
+      
+      const layout = {
+        xaxis: { title: 'X (Å)' },
+        yaxis: { title: 'Y (Å)' },
+        margin: { l: 60, r: 50, t: 40, b: 60 },
+        hovermode: 'closest',
+        title: 'Adsorption Energy Heatmap (Top View)'
+      }
+      
+      const config = {
+        responsive: true,
+        displayModeBar: true,
+        displaylogo: false
+      }
+      
+      Plotly.newPlot(this.$refs.heatmapContainer, [trace], layout, config)
+    },
+    
+    handleMeshOptionsUpdate(options) {
+      this.meshOptions = { ...options }
     }
   }
 }
 </script>
 
 <style scoped>
+.visualization-chart {
+  width: 100%;
+}
+
 .plot-container {
   width: 100%;
   height: 600px;
+  background: white;
+  border-radius: 4px;
 }
 
-.loading {
-  text-align: center;
-  padding: 2rem;
-  color: #666;
+.loading-container {
+  padding: 20px;
+}
+
+:deep(.el-tabs__content) {
+  padding: 15px;
+}
+
+:deep(.el-tabs__item) {
+  font-weight: 500;
 }
 </style>
