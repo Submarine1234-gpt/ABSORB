@@ -255,6 +255,94 @@ def health_check():
     })
 
 
+@app.route('/api/visualization/<session_id>/surface_mesh.json')
+def get_surface_mesh(session_id):
+    """
+    Get surface mesh data for 3D visualization
+    
+    Args:
+        session_id: Session identifier
+        
+    Returns:
+        JSON mesh data or error
+    """
+    try:
+        result_dir = file_service.get_user_path('results', session_id)
+        mesh_file = os.path.join(result_dir, 'surface_mesh.json')
+        
+        # Check if mesh file exists
+        if os.path.exists(mesh_file):
+            return send_file(mesh_file, mimetype='application/json')
+        
+        # Try to generate mesh if it doesn't exist
+        from core.surface_mesh import generate_surface_mesh_from_results
+        
+        # Get surface axis from session (default to 2/Z-axis)
+        surface_axis = 2  # Could be stored with session data
+        
+        mesh_data = generate_surface_mesh_from_results(result_dir, surface_axis)
+        
+        if mesh_data is None:
+            return jsonify({'error': 'Unable to generate surface mesh'}), 404
+        
+        return jsonify(mesh_data)
+        
+    except Exception as e:
+        app_logger.error(f"Failed to get surface mesh for {session_id}: {e}", exc_info=True)
+        return jsonify({'error': f'Failed to get surface mesh: {str(e)}'}), 500
+
+
+@app.route('/api/mesh/generate', methods=['POST'])
+def generate_mesh():
+    """
+    Generate surface mesh for a session
+    
+    Request body:
+        - session_id: Session identifier
+        - surface_axis: Surface axis (optional, default 2)
+        - max_edge_length: Maximum edge length (optional)
+        
+    Returns:
+        JSON with mesh generation status
+    """
+    try:
+        data = request.get_json()
+        session_id = data.get('session_id')
+        surface_axis = data.get('surface_axis', 2)
+        max_edge_length = data.get('max_edge_length', 10.0)
+        
+        if not session_id:
+            return jsonify({'success': False, 'message': 'session_id required'}), 400
+        
+        result_dir = file_service.get_user_path('results', session_id)
+        
+        if not os.path.exists(result_dir):
+            return jsonify({'success': False, 'message': 'Session not found'}), 404
+        
+        from core.surface_mesh import generate_surface_mesh_from_results
+        
+        mesh_data = generate_surface_mesh_from_results(result_dir, surface_axis)
+        
+        if mesh_data is None:
+            return jsonify({
+                'success': False,
+                'message': 'Failed to generate mesh - insufficient data'
+            }), 400
+        
+        return jsonify({
+            'success': True,
+            'message': 'Mesh generated successfully',
+            'mesh_stats': {
+                'vertices': mesh_data['metadata']['vertex_count'],
+                'triangles': mesh_data['metadata']['triangle_count']
+            }
+        })
+        
+    except Exception as e:
+        app_logger.error(f"Mesh generation failed: {e}", exc_info=True)
+        return jsonify({'success': False, 'message': str(e)}), 500
+
+
 if __name__ == '__main__':
     # Create necessary directories
     os.makedirs(UPLOAD_FOLDER, exist_ok=True)
