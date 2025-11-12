@@ -88,6 +88,11 @@ def validate_calculation_params(params):
         except (ValueError, TypeError):
             return False, "surface_axis must be an integer"
     
+    # Validate rotation_method
+    if 'rotation_method' in params:
+        if params['rotation_method'] not in ['normal', 'sphere']:
+            return False, "rotation_method must be 'normal' or 'sphere'"
+    
     return True, None
 
 

@@ -62,7 +62,13 @@ class SurfaceAdsorptionWorkflow:
         # Rotation parameters
         self.rotation_count = int(kwargs.get('rotation_count', 50))
         self.rotation_step = float(kwargs.get('rotation_step', 30))
-        self.rotation_method = 'sphere' if kwargs.get('rotation_method', False) else 'normal'
+        
+        # Handle rotation_method - accept both boolean (legacy) and string values
+        rotation_method_param = kwargs.get('rotation_method', 'normal')
+        if isinstance(rotation_method_param, bool):
+            self.rotation_method = 'sphere' if rotation_method_param else 'normal'
+        else:
+            self.rotation_method = rotation_method_param if rotation_method_param in ['normal', 'sphere'] else 'normal'
         
         # Create output folder
         os.makedirs(self.output_folder, exist_ok=True)
@@ -333,22 +339,28 @@ class SurfaceAdsorptionWorkflow:
         """Create JSON data for frontend visualization"""
         self.logger.info("Creating visualization data...")
         
-        output_data = {
+        # Create adsorption sites data with correct structure for frontend
+        sites_data = {
             'cell': slab.cell.tolist(),
             'sites': []
         }
         
         for result in results:
-            output_data['sites'].append({
-                'coords': result['surface_site_coordinates'],
-                'energy': float(round(result['adsorption_energy'], 4))
+            sites_data['sites'].append({
+                'position': result['surface_site_coordinates'],  # Frontend expects 'position'
+                'energy': float(round(result['adsorption_energy'], 4)),
+                'type': result['site_type']  # Include site type for frontend display
             })
         
-        filename = os.path.join(self.output_folder, 'adsorption_sites.json')
-        with open(filename, 'w', encoding='utf-8') as f:
-            json.dump(output_data, f, ensure_ascii=False, indent=2)
+        # Save adsorption sites data
+        sites_filename = os.path.join(self.output_folder, 'adsorption_sites.json')
+        with open(sites_filename, 'w', encoding='utf-8') as f:
+            json.dump(sites_data, f, ensure_ascii=False, indent=2)
         
-        self.logger.info(f"Visualization data saved to {filename}")
+        self.logger.info(f"Adsorption sites data saved to {sites_filename}")
+        
+        # Note: surface_atoms.json is already generated in _find_surface_atoms method
+        # surface_mesh.json is generated on-demand by the backend API endpoint
     
     def _save_summary(self, results):
         """Save calculation summary"""

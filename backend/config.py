@@ -28,7 +28,7 @@ DEFAULT_PARAMS = {
     'on_top_target_atom': 'O',
     'rotation_count': 50,
     'rotation_step': 30,
-    'rotation_method': False
+    'rotation_method': 'normal'  # String value: 'normal' or 'sphere'
 }
 
 # Flask settings
