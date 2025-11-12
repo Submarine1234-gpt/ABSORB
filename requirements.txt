@@ -1,0 +1,20 @@
+# Core dependencies
+Flask==2.3.3
+Werkzeug==2.3.7
+
+# Scientific computing
+numpy==1.24.3
+scipy==1.11.2
+
+# Atomic simulation
+ase==3.22.1
+chgnet==0.3.0
+
+# Chemistry file formats
+pymatgen==2023.8.10
+
+# Additional dependencies for CHGNet
+torch==2.0.1
+
+# Utilities
+python-dateutil==2.8.2
