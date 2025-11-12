@@ -107,7 +107,10 @@ def run_calculation():
         params['hollow_sites_enabled'] = 'hollow_sites_enabled' in request.form
         params['on_top_sites_enabled'] = 'on_top_sites_enabled' in request.form
         params['place_on_bottom'] = 'place_on_bottom' in request.form
-        params['rotation_method'] = 'rotation_method' in request.form
+        
+        # Convert rotation_method from boolean to string ('normal' or 'sphere')
+        rotation_method_enabled = 'rotation_method' in request.form
+        params['rotation_method'] = 'sphere' if rotation_method_enabled else 'normal'
         
         # Add file paths and output folder
         params.update({
