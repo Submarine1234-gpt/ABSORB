@@ -1,0 +1,104 @@
+[SYSTEM] Calculation session starting: 2025-09-07 19:02:30.550333
+[SYSTEM] Session ID: 29f5bd09-f56f-455c-bc90-0b5f17cd41fd
+
+[SYSTEM] Saved substrate to: d:\WebAPP\user_uploads\results\29f5bd09-f56f-455c-bc90-0b5f17cd41fd\100-1.cif
+[SYSTEM] Saved adsorbate to: d:\WebAPP\user_uploads\results\29f5bd09-f56f-455c-bc90-0b5f17cd41fd\U.cif
+
+[SYSTEM] Files in result_dir: ['100-1.cif', 'calculation.log', 'U.cif']
+
+[SYSTEM] Executing: C:\Users\Submarine\AppData\Local\Programs\Python\Python310\python.exe d:\WebAPP\core.py --surface_axis 2 --adsorption_height 2.0 --vacuum_thickness 20.0 --surface_search_depth 2 --collision_threshold 1.2 --hollow_sites_enabled --on_top_sites_enabled --on_top_target_atom O --knn_neighbors 2 --hollow_site_deduplication_distance 1.5 --substrate d:\WebAPP\user_uploads\results\29f5bd09-f56f-455c-bc90-0b5f17cd41fd\100-1.cif --adsorbate d:\WebAPP\user_uploads\results\29f5bd09-f56f-455c-bc90-0b5f17cd41fd\U.cif --output_folder d:\WebAPP\user_uploads\results\29f5bd09-f56f-455c-bc90-0b5f17cd41fd
+
+Workflow initialized with parameters: {'substrate': 'd:\\WebAPP\\user_uploads\\results\\29f5bd09-f56f-455c-bc90-0b5f17cd41fd\\100-1.cif', 'adsorbate': 'd:\\WebAPP\\user_uploads\\results\\29f5bd09-f56f-455c-bc90-0b5f17cd41fd\\U.cif', 'output_folder': 'd:\\WebAPP\\user_uploads\\results\\29f5bd09-f56f-455c-bc90-0b5f17cd41fd', 'adsorption_height': 2.0, 'vacuum_thickness': 20.0, 'surface_search_depth': 2.0, 'hollow_sites_enabled': True, 'on_top_sites_enabled': True, 'on_top_target_atom': 'O', 'surface_axis': 2, 'collision_threshold': 1.2, 'knn_neighbors': 2, 'hollow_site_deduplication_distance': 1.5, 'place_on_bottom': False, 'rotation_count': 50, 'rotation_step': 30, 'rotation_method': False}
+加载结构文件...
+C:\Users\Submarine\AppData\Local\Programs\Python\Python310\lib\site-packages\ase\io\cif.py:410: UserWarning: crystal system 'triclinic' is not interpreted for space group Spacegroup(1, setting=1). This may result in wrong setting!
+  warnings.warn(
+加载成功: 基板=C160H200N112Zn28 | 吸附物=O2U
+构建表面平板模型...
+平板构建完成。PBC: [ True  True False] | 晶胞尺寸: [45.       33.695    73.068273]
+基底能量: -2911.6777 eV
+吸附物能量: -25.9394 eV
+寻找顶层(坐标最大侧)原子...
+找到 32 个顶层(坐标最大侧)原子。
+-> 计算“空腔”位点...
+--> 去重后得到 12 个空腔位点。
+-> 计算“顶”位点 on 'O'...
+--> 找到了 0 个 'O' 顶位点。
+空穴hollow点有[{'site': array([14.5539    ,  6.678349  , 51.77932693]), 'normal': array([-0.13760588,  0.81341392,  0.56517468]), 'type': 'Hollow'}, {'site': array([13.00305   ,  7.5308325 , 52.33933783]), 'normal': array([ 0.4781282 , -0.19063507,  0.85735156]), 'type': 'Hollow'}, {'site': array([13.9077    , 10.17195892, 52.14615317]), 'normal': array([ 0.71410654, -0.0135547 ,  0.69990579]), 'type': 'Hollow'}, {'site': array([19.1412    , 10.169151  , 51.77932693]), 'normal': array([ 0.13760588, -0.81341392,  0.56517468]), 'type': 'Hollow'}, {'site': array([20.69205   ,  9.3166675 , 52.33933783]), 'normal': array([-0.4781282 ,  0.19063507,  0.85735156]), 'type': 'Hollow'}, {'site': array([19.7874    ,  6.67554108, 52.14615317]), 'normal': array([-0.71410654,  0.0135547 ,  0.69990579]), 'type': 'Hollow'}, {'site': array([14.5539    , 23.525849  , 51.77932693]), 'normal': array([-0.13760588,  0.81341392,  0.56517468]), 'type': 'Hollow'}, {'site': array([13.00305   , 24.3783325 , 52.33933783]), 'normal': array([ 0.4781282 , -0.19063507,  0.85735156]), 'type': 'Hollow'}, {'site': array([13.9077    , 27.01945892, 52.14615317]), 'normal': array([ 0.71410654, -0.0135547 ,  0.69990579]), 'type': 'Hollow'}, {'site': array([19.1412    , 27.016651  , 51.77932693]), 'normal': array([ 0.13760588, -0.81341392,  0.56517468]), 'type': 'Hollow'}, {'site': array([20.69205   , 26.1641675 , 52.33933783]), 'normal': array([-0.4781282 ,  0.19063507,  0.85735156]), 'type': 'Hollow'}, {'site': array([19.7874    , 23.52304108, 52.14615317]), 'normal': array([-0.71410654,  0.0135547 ,  0.69990579]), 'type': 'Hollow'}]
+顶位on_top点有[]
+位点搜索完成：12 个空腔位, 0 个顶位, 总计 12 个。
+开始在 12 个位点上放置、旋转和筛选...
+--- 正在处理位点 1/12 (Hollow) ---
+    -> 目标位置: [14.27868824  8.30517683 52.9096763 ] (法向: [-0.13760588  0.81341392  0.56517468], 吸附高度: 2.0 Å)
+    -> (使用LennardJones进行快速旋转优化...)
+    -> 位点 1 在最优旋转后仍发生碰撞 (最短距离: 1.11 Å)，跳过。
+--- 正在处理位点 2/12 (Hollow) ---
+    -> 目标位置: [13.9593064   7.14956235 54.05404095] (法向: [ 0.4781282  -0.19063507  0.85735156], 吸附高度: 2.0 Å)
+    -> (使用LennardJones进行快速旋转优化...)
+    -> 位点 2 优化完成。最优角度: 166.87°, 吸附能: -3.8826 eV。
+C:\Users\Submarine\AppData\Local\Programs\Python\Python310\lib\site-packages\ase\io\cif.py:836: UserWarning: Occupancies present but no occupancy info for "{symbol}"
+  warnings.warn(str(err))
+    -> 已保存至 02_adsorbed_site_2_Hollow.cif
+--- 正在处理位点 3/12 (Hollow) ---
+    -> 目标位置: [15.33591308 10.14484951 53.54596475] (法向: [ 0.71410654 -0.0135547   0.69990579], 吸附高度: 2.0 Å)
+    -> (使用LennardJones进行快速旋转优化...)
+    -> 位点 3 优化完成。最优角度: 150.57°, 吸附能: 0.4062 eV。
+    -> 已保存至 02_adsorbed_site_3_Hollow.cif
+--- 正在处理位点 4/12 (Hollow) ---
+    -> 目标位置: [19.41641176  8.54232317 52.9096763 ] (法向: [ 0.13760588 -0.81341392  0.56517468], 吸附高度: 2.0 Å)
+    -> (使用LennardJones进行快速旋转优化...)
+    -> 位点 4 在最优旋转后仍发生碰撞 (最短距离: 1.06 Å)，跳过。
+--- 正在处理位点 5/12 (Hollow) ---
+    -> 目标位置: [19.7357936   9.69793765 54.05404095] (法向: [-0.4781282   0.19063507  0.85735156], 吸附高度: 2.0 Å)
+    -> (使用LennardJones进行快速旋转优化...)
+    -> 位点 5 在最优旋转后仍发生碰撞 (最短距离: 1.12 Å)，跳过。
+--- 正在处理位点 6/12 (Hollow) ---
+    -> 目标位置: [18.35918692  6.70265049 53.54596475] (法向: [-0.71410654  0.0135547   0.69990579], 吸附高度: 2.0 Å)
+    -> (使用LennardJones进行快速旋转优化...)
+    -> 位点 6 在最优旋转后仍发生碰撞 (最短距离: 0.82 Å)，跳过。
+--- 正在处理位点 7/12 (Hollow) ---
+    -> 目标位置: [14.27868824 25.15267683 52.9096763 ] (法向: [-0.13760588  0.81341392  0.56517468], 吸附高度: 2.0 Å)
+    -> (使用LennardJones进行快速旋转优化...)
+    -> 位点 7 在最优旋转后仍发生碰撞 (最短距离: 1.11 Å)，跳过。
+--- 正在处理位点 8/12 (Hollow) ---
+    -> 目标位置: [13.9593064  23.99706235 54.05404095] (法向: [ 0.4781282  -0.19063507  0.85735156], 吸附高度: 2.0 Å)
+    -> (使用LennardJones进行快速旋转优化...)
+    -> 位点 8 优化完成。最优角度: 166.87°, 吸附能: -3.8835 eV。
+    -> 已保存至 02_adsorbed_site_8_Hollow.cif
+--- 正在处理位点 9/12 (Hollow) ---
+    -> 目标位置: [15.33591308 26.99234951 53.54596475] (法向: [ 0.71410654 -0.0135547   0.69990579], 吸附高度: 2.0 Å)
+    -> (使用LennardJones进行快速旋转优化...)
+    -> 位点 9 优化完成。最优角度: 150.57°, 吸附能: 0.4062 eV。
+    -> 已保存至 02_adsorbed_site_9_Hollow.cif
+--- 正在处理位点 10/12 (Hollow) ---
+    -> 目标位置: [19.41641176 25.38982317 52.9096763 ] (法向: [ 0.13760588 -0.81341392  0.56517468], 吸附高度: 2.0 Å)
+    -> (使用LennardJones进行快速旋转优化...)
+    -> 位点 10 在最优旋转后仍发生碰撞 (最短距离: 1.06 Å)，跳过。
+--- 正在处理位点 11/12 (Hollow) ---
+    -> 目标位置: [19.7357936  26.54543765 54.05404095] (法向: [-0.4781282   0.19063507  0.85735156], 吸附高度: 2.0 Å)
+    -> (使用LennardJones进行快速旋转优化...)
+    -> 位点 11 在最优旋转后仍发生碰撞 (最短距离: 1.12 Å)，跳过。
+--- 正在处理位点 12/12 (Hollow) ---
+    -> 目标位置: [18.35918692 23.55015049 53.54596475] (法向: [-0.71410654  0.0135547   0.69990579], 吸附高度: 2.0 Å)
+    -> (使用LennardJones进行快速旋转优化...)
+    -> 位点 12 在最优旋转后仍发生碰撞 (最短距离: 0.82 Å)，跳过。
+-------------------- 优化流程总结 --------------------
+总共尝试位点数: 12
+因碰撞而跳过数: 8
+最终成功生成数: 4
+----------------------------------------------------
+正在创建用于前端可视化的 'adsorption_sites.json'...
+成功将可视化数据写入到: d:\WebAPP\user_uploads\results\29f5bd09-f56f-455c-bc90-0b5f17cd41fd\adsorption_sites.json
+生成包含所有*优化后*吸附物的最终可视化文件...
+--- 最终优化构型汇总 (吸附能越负越稳定) ---
+  位点 8 (Hollow): 吸附能 = -3.8835 eV. (可视化标记: Ar)
+  位点 2 (Hollow): 吸附能 = -3.8826 eV. (可视化标记: Kr)
+  位点 3 (Hollow): 吸附能 = 0.4062 eV. (可视化标记: Ar)
+  位点 9 (Hollow): 吸附能 = 0.4062 eV. (可视化标记: Ne)
+包含所有最终构型的可视化文件已生成: 00_FINAL_all_optimized_sites.cif
+Calculation finished successfully.
+CHGNet v0.3.0 initialized with 412,525 parameters
+CHGNet will run on cpu
+CHGNet v0.3.0 initialized with 412,525 parameters
+CHGNet will run on cpu
+
+[SYSTEM] All files zipped successfully.
