@@ -10,7 +10,7 @@ from ase.constraints import FixAtoms
 from .calculators import CalculatorFactory
 from .site_finder import HollowSiteFinder, OnTopSiteFinder
 from .optimizers import RotationOptimizer
-from utils import get_session_logger
+from utils import get_session_logger, plot_adsorption_site, plot_energy_distribution
 
 
 class SurfaceAdsorptionWorkflow:
@@ -64,11 +64,21 @@ class SurfaceAdsorptionWorkflow:
         self.rotation_step = float(kwargs.get('rotation_step', 30))
         
         # Handle rotation_method - accept both boolean (legacy) and string values
+        # Validate and set rotation method with explicit logging
         rotation_method_param = kwargs.get('rotation_method', 'normal')
         if isinstance(rotation_method_param, bool):
+            # Legacy boolean support: True = sphere, False = normal
             self.rotation_method = 'sphere' if rotation_method_param else 'normal'
+        elif isinstance(rotation_method_param, str):
+            # String support: must be 'normal' or 'sphere'
+            if rotation_method_param.lower() in ['normal', 'sphere']:
+                self.rotation_method = rotation_method_param.lower()
+            else:
+                # Invalid value, default to 'normal'
+                self.rotation_method = 'normal'
         else:
-            self.rotation_method = rotation_method_param if rotation_method_param in ['normal', 'sphere'] else 'normal'
+            # Invalid type, default to 'normal'
+            self.rotation_method = 'normal'
         
         # Create output folder
         os.makedirs(self.output_folder, exist_ok=True)
@@ -77,6 +87,7 @@ class SurfaceAdsorptionWorkflow:
         session_id = kwargs.get('session_id', 'workflow')
         self.logger = get_session_logger(session_id, self.output_folder)
         self.logger.info(f"Workflow initialized with parameters: {kwargs}")
+        self.logger.info(f"Rotation method selected: {self.rotation_method.upper()}")
     
     def run(self, substrate_path, adsorbate_path):
         """
@@ -123,6 +134,10 @@ class SurfaceAdsorptionWorkflow:
             if optimized_results:
                 self._create_visualization_data(surface_slab, optimized_results)
                 self._save_summary(optimized_results)
+                
+                # Generate energy distribution plot
+                energy_plot_path = os.path.join(self.output_folder, '04_energy_distribution.png')
+                plot_energy_distribution(optimized_results, energy_plot_path, self.logger)
             else:
                 self.logger.warning("No sites successfully optimized")
             
@@ -229,6 +244,13 @@ class SurfaceAdsorptionWorkflow:
     def _place_and_optimize_adsorbate(self, slab, adsorbate, sites, e_slab, e_adsorbate):
         """Place and optimize adsorbate at each site"""
         self.logger.info(f"Starting optimization at {len(sites)} sites...")
+        self.logger.info(f"Using rotation method: {self.rotation_method.upper()}")
+        
+        if self.rotation_method == 'sphere':
+            self.logger.info(f"  - Spherical sampling with {self.rotation_count} rotation axes")
+            self.logger.info(f"  - Rotation step: {self.rotation_step}° per axis")
+        else:
+            self.logger.info(f"  - Normal rotation around surface normal vector")
         
         results = []
         skipped = 0
@@ -304,7 +326,7 @@ class SurfaceAdsorptionWorkflow:
                 ase.io.write(os.path.join(self.output_folder, filename), optimized_system)
                 
                 # Store result
-                results.append({
+                result_info = {
                     'system': optimized_system,
                     'adsorption_energy': adsorption_energy,
                     'site_type': site_type,
@@ -312,7 +334,19 @@ class SurfaceAdsorptionWorkflow:
                     'adsorbate_com_coordinates': optimized_system[adsorbate_indices].get_center_of_mass().tolist(),
                     'site_index': i + 1,
                     'optimization_info': opt_info
-                })
+                }
+                results.append(result_info)
+                
+                # Generate plot for this site
+                plot_filename = f"03_plot_site_{i+1}_{site_type}.png"
+                plot_path = os.path.join(self.output_folder, plot_filename)
+                plot_adsorption_site(
+                    optimized_system, 
+                    adsorbate_indices, 
+                    result_info, 
+                    plot_path, 
+                    self.logger
+                )
                 
             except Exception as e:
                 self.logger.error(f"Site {i+1} optimization failed: {e}")

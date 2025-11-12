@@ -193,9 +193,10 @@ export default {
         traces.push({
           type: 'scatter3d',
           mode: 'markers',
-          x: sites.map(s => s.position[0]),
-          y: sites.map(s => s.position[1]),
-          z: sites.map(s => s.position[2]),
+          // Support both 'position' (new) and 'coords' (legacy) data formats
+          x: sites.map(s => (s.position || s.coords)?.[0]),
+          y: sites.map(s => (s.position || s.coords)?.[1]),
+          z: sites.map(s => (s.position || s.coords)?.[2]),
           marker: {
             size: 6,
             color: this.displayOptions.colorByEnergy ? energies : '#409EFF',
@@ -249,8 +250,9 @@ export default {
       if (sites.length === 0) return
       
       // Create 2D heatmap projection
-      const x = sites.map(s => s.position[0])
-      const y = sites.map(s => s.position[1])
+      // Support both 'position' (new) and 'coords' (legacy) data formats
+      const x = sites.map(s => (s.position || s.coords)?.[0])
+      const y = sites.map(s => (s.position || s.coords)?.[1])
       const z = sites.map(s => s.energy)
       
       const trace = {
