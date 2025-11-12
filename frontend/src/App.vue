@@ -30,15 +30,14 @@
     
     <el-footer class="app-footer" height="60px">
       <div class="footer-content">
-        <el-icon><Copyright /></el-icon>
-        <span>2024 ABSORB Platform | Powered by ASE & CHGNet</span>
+        <span>&copy; 2024 ABSORB Platform | Powered by ASE & CHGNet</span>
       </div>
     </el-footer>
   </el-container>
 </template>
 
 <script>
-import { Moon, Sunny, Grid, Copyright } from '@element-plus/icons-vue'
+import { Moon, Sunny, Grid } from '@element-plus/icons-vue'
 import Dashboard from './components/Dashboard.vue'
 
 export default {
@@ -47,8 +46,7 @@ export default {
     Dashboard,
     Moon,
     Sunny,
-    Grid,
-    Copyright
+    Grid
   },
   data() {
     return {
