@@ -1,41 +1,69 @@
 <template>
   <div class="dashboard">
-    <div class="dashboard-grid">
+    <el-row :gutter="20" class="dashboard-row">
       <!-- Calculation Form -->
-      <div class="dashboard-col">
+      <el-col :xs="24" :lg="12">
         <CalculationForm 
           @calculation-started="handleCalculationStarted"
           :is-running="isCalculationRunning"
         />
-      </div>
+      </el-col>
       
       <!-- Results and Visualization -->
-      <div class="dashboard-col">
-        <!-- Logs Section -->
-        <div v-if="currentSessionId" class="card">
-          <h2 class="card-title">Calculation Logs</h2>
+      <el-col :xs="24" :lg="12">
+        <!-- Progress and Status -->
+        <el-card v-if="currentSessionId" shadow="hover" class="status-card">
+          <template #header>
+            <div class="card-header">
+              <span>
+                <el-icon><Document /></el-icon>
+                Calculation Progress
+              </span>
+              <el-tag :type="statusTagType">{{ statusText }}</el-tag>
+            </div>
+          </template>
+          
+          <el-progress 
+            v-if="!calculationComplete"
+            :percentage="50" 
+            :indeterminate="true"
+            :duration="3"
+            status="success"
+          />
+          
+          <el-alert
+            v-if="calculationComplete"
+            title="Calculation Complete!"
+            type="success"
+            :closable="false"
+            show-icon
+          />
+          
           <div class="log-container" ref="logContainer">
             <div v-for="(log, index) in logs" :key="index" class="log-line">
               {{ log }}
             </div>
           </div>
-          <div class="status-bar">
-            <span :class="['status-indicator', statusClass]">
-              {{ statusText }}
-            </span>
-          </div>
-        </div>
+        </el-card>
         
         <!-- Visualization -->
-        <div v-if="currentSessionId && calculationComplete" class="card">
+        <el-card v-if="currentSessionId && calculationComplete" shadow="hover" class="viz-card">
+          <template #header>
+            <div class="card-header">
+              <span>
+                <el-icon><TrendCharts /></el-icon>
+                Visualization Results
+              </span>
+            </div>
+          </template>
           <ChartControls @update-display="handleUpdateDisplay" />
           <VisualizationChart 
             :session-id="currentSessionId"
             :display-options="displayOptions"
           />
-        </div>
-      </div>
-    </div>
+        </el-card>
+      </el-col>
+    </el-row>
     
     <!-- Result History -->
     <ResultHistory :results="results" @load-result="handleLoadResult" />
@@ -43,6 +71,8 @@
 </template>
 
 <script>
+import { Document, TrendCharts } from '@element-plus/icons-vue'
+import { ElMessage } from 'element-plus'
 import CalculationForm from './CalculationForm.vue'
 import ChartControls from './ChartControls.vue'
 import VisualizationChart from './VisualizationChart.vue'
@@ -55,7 +85,9 @@ export default {
     CalculationForm,
     ChartControls,
     VisualizationChart,
-    ResultHistory
+    ResultHistory,
+    Document,
+    TrendCharts
   },
   data() {
     return {
@@ -85,6 +117,11 @@ export default {
       if (this.calculationComplete) return 'Complete'
       if (this.currentSessionId) return 'Running...'
       return 'Idle'
+    },
+    statusTagType() {
+      if (this.calculationComplete) return 'success'
+      if (this.currentSessionId) return 'warning'
+      return 'info'
     }
   },
   methods: {
@@ -94,6 +131,8 @@ export default {
       this.calculationComplete = false
       
       this.$emit('start-calculation', sessionData)
+      
+      ElMessage.success('Calculation started successfully!')
       
       // Start log streaming
       this.startLogStreaming()
@@ -130,6 +169,7 @@ export default {
             this.calculationComplete = true
             this.stopStatusCheck()
             await this.loadResults()
+            ElMessage.success('Calculation completed!')
           }
         } catch (error) {
           console.error('Status check failed:', error)
@@ -164,6 +204,7 @@ export default {
         this.results = await api.getResults()
       } catch (error) {
         console.error('Failed to load results:', error)
+        ElMessage.error('Failed to load results')
       }
     },
     
@@ -171,6 +212,7 @@ export default {
       this.currentSessionId = result.session_id
       this.calculationComplete = true
       this.logs = ['[SYSTEM] Loaded historical result']
+      ElMessage.info('Loaded historical calculation result')
     }
   },
   mounted() {
@@ -183,29 +225,39 @@ export default {
 </script>
 
 <style scoped>
-.dashboard-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 2rem;
-  margin-bottom: 2rem;
+.dashboard-row {
+  margin-bottom: 20px;
 }
 
-@media (max-width: 1024px) {
-  .dashboard-grid {
-    grid-template-columns: 1fr;
-  }
+.status-card,
+.viz-card {
+  margin-bottom: 20px;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 600;
+}
+
+.card-header span {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .log-container {
   background: #1e1e1e;
   color: #d4d4d4;
-  font-family: 'Courier New', monospace;
-  font-size: 0.9rem;
+  font-family: 'Courier New', 'Consolas', monospace;
+  font-size: 0.875rem;
   padding: 1rem;
-  border-radius: 5px;
-  height: 400px;
+  border-radius: 4px;
+  height: 350px;
   overflow-y: auto;
-  margin-bottom: 1rem;
+  margin-top: 1rem;
+  line-height: 1.5;
 }
 
 .log-line {
@@ -214,37 +266,9 @@ export default {
   word-break: break-all;
 }
 
-.status-bar {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-
-.status-indicator {
-  padding: 0.5rem 1rem;
-  border-radius: 20px;
-  font-weight: 500;
-  font-size: 0.9rem;
-}
-
-.status-idle {
-  background: #e0e0e0;
-  color: #666;
-}
-
-.status-running {
-  background: #fff3e0;
-  color: #f57c00;
-  animation: pulse 2s infinite;
-}
-
-.status-complete {
-  background: #e8f5e9;
-  color: #388e3c;
-}
-
-@keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.7; }
+@media (max-width: 992px) {
+  .dashboard-row {
+    flex-direction: column;
+  }
 }
 </style>
