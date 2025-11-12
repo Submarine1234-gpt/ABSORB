@@ -1,15 +1,32 @@
 # ABSORB - Surface Adsorption Calculation Platform
 
-A comprehensive platform for automated surface adsorption site identification, geometry optimization, and adsorption energy calculation using machine learning potentials.
+A comprehensive platform for automated surface adsorption site identification, geometry optimization, and adsorption energy calculation using machine learning potentials. Now featuring a modern Element Plus UI and advanced 3D triangle mesh visualization.
+
+## ✨ New Features (v2.0)
+
+- 🎨 **Modern UI**: Professional Element Plus design system
+- 🔺 **3D Mesh Visualization**: Interactive triangle mesh with energy mapping
+- 📊 **Multi-View Charts**: Tabbed interface for scatter, heatmap, and mesh views
+- 🌓 **Dark Mode**: Theme toggle for comfortable viewing
+- 📱 **Responsive Design**: Works seamlessly on desktop, tablet, and mobile
+- ⚡ **Auto-Import**: Streamlined development with automatic component imports
+- 🎯 **Better UX**: Drag-and-drop uploads, organized parameters, paginated results
 
 ## Features
 
+### Core Functionality
 - 🎯 **Automatic Site Detection**: Identifies hollow and on-top adsorption sites
 - 🔄 **Rotation Optimization**: Advanced algorithms for optimal adsorbate orientation
 - ⚡ **ML Potential Calculations**: Fast adsorption energy calculations using CHGNet
 - 📊 **Real-time Monitoring**: Live calculation logs via Server-Sent Events
-- 🎨 **3D Visualization**: Interactive Plotly.js visualization of results
 - 📁 **Result Management**: History tracking and downloadable result packages
+
+### Visualization
+- 🎨 **3D Scatter Plot**: Interactive Plotly.js visualization of adsorption sites
+- 🔥 **Heat Map**: 2D energy projection for quick analysis
+- 🔺 **Triangle Mesh**: Advanced 3D surface mesh with Delaunay triangulation
+- 🌈 **Energy Coloring**: Intuitive green-to-red color mapping
+- 🔄 **360° Rotation**: Full orbital control of 3D views
 
 ## Architecture
 
@@ -20,6 +37,7 @@ ABSORB/
 │   │   ├── calculators/    # Calculator factory (CHGNet, LJ)
 │   │   ├── site_finder/    # Site detection algorithms
 │   │   ├── optimizers/     # Rotation optimizers
+│   │   ├── surface_mesh/   # 🆕 3D mesh generation (Delaunay, interpolation)
 │   │   └── workflow.py     # Main workflow orchestrator
 │   ├── services/           # Service layer
 │   │   ├── calculation_service.py
@@ -29,14 +47,21 @@ ABSORB/
 │   │   ├── logger.py
 │   │   └── validators.py
 │   ├── config.py           # Configuration
-│   └── app.py              # Flask application
-├── frontend/               # Vue.js frontend
+│   └── app.py              # Flask application (+ mesh API routes)
+├── frontend/               # Vue 3 frontend with Element Plus
 │   ├── src/
-│   │   ├── components/     # Vue components
+│   │   ├── components/     # Vue components (redesigned)
+│   │   │   ├── SurfaceMeshViewer.vue  # 🆕 Three.js mesh viewer
+│   │   │   ├── MeshControls.vue        # 🆕 Mesh display controls
+│   │   │   └── ... (all redesigned with Element Plus)
 │   │   ├── services/       # API service
 │   │   └── utils/          # Frontend utilities
-│   ├── package.json
-│   └── vite.config.js
+│   ├── package.json        # Updated with Element Plus, Three.js
+│   ├── vite.config.js      # Auto-import configuration
+│   └── tsconfig.json       # 🆕 TypeScript support
+├── COMPONENT_DOCUMENTATION.md  # 🆕 Detailed component docs
+├── UI_REBUILD_SUMMARY.md       # 🆕 Implementation summary
+├── SECURITY_SUMMARY.md          # 🆕 Security assessment
 └── requirements.txt        # Python dependencies
 ```
 
@@ -45,14 +70,18 @@ ABSORB/
 ### Backend
 - **Framework**: Flask 2.3.3
 - **Calculation Engine**: ASE 3.22.1 + CHGNet 0.3.0
-- **Scientific Computing**: NumPy, SciPy
+- **Scientific Computing**: NumPy, SciPy (with Delaunay triangulation)
 - **ML Framework**: PyTorch 2.0.1
+- **🆕 Mesh Generation**: Custom Delaunay-based surface mesh module
 
 ### Frontend
-- **Framework**: Vue.js 3
-- **Build Tool**: Vite
-- **Visualization**: Plotly.js
+- **Framework**: Vue.js 3 with Composition API
+- **🆕 UI Library**: Element Plus 2.4.2 (professional components)
+- **🆕 3D Rendering**: Three.js 0.158 (WebGL mesh visualization)
+- **Build Tool**: Vite 4.4.9 (fast HMR and builds)
+- **Charts**: Plotly.js (2D/3D interactive charts)
 - **HTTP Client**: Axios
+- **🆕 TypeScript**: Optional type safety
 
 ## Installation
 
@@ -60,6 +89,7 @@ ABSORB/
 - Python 3.8+
 - Node.js 16+ and npm
 - Git
+- Modern browser with WebGL support (for 3D mesh visualization)
 
 ### Backend Setup
 

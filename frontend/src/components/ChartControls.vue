@@ -1,28 +1,54 @@
 <template>
-  <div class="chart-controls">
-    <h3>Display Options</h3>
-    <div class="controls-grid">
-      <label class="checkbox-group">
-        <input type="checkbox" v-model="localOptions.showSurface" @change="updateOptions" />
-        <span>Show Surface Atoms</span>
-      </label>
+  <el-card shadow="never" class="chart-controls-card">
+    <template #header>
+      <span>
+        <el-icon><Setting /></el-icon>
+        Display Options
+      </span>
+    </template>
+    
+    <el-space wrap :size="15">
+      <el-checkbox
+        v-model="localOptions.showSurface"
+        @change="updateOptions"
+        border
+      >
+        <el-icon><Grid /></el-icon>
+        Show Surface Atoms
+      </el-checkbox>
       
-      <label class="checkbox-group">
-        <input type="checkbox" v-model="localOptions.showSites" @change="updateOptions" />
-        <span>Show Adsorption Sites</span>
-      </label>
+      <el-checkbox
+        v-model="localOptions.showSites"
+        @change="updateOptions"
+        border
+      >
+        <el-icon><Location /></el-icon>
+        Show Adsorption Sites
+      </el-checkbox>
       
-      <label class="checkbox-group">
-        <input type="checkbox" v-model="localOptions.colorByEnergy" @change="updateOptions" />
-        <span>Color by Energy</span>
-      </label>
-    </div>
-  </div>
+      <el-checkbox
+        v-model="localOptions.colorByEnergy"
+        @change="updateOptions"
+        border
+      >
+        <el-icon><Orange /></el-icon>
+        Color by Energy
+      </el-checkbox>
+    </el-space>
+  </el-card>
 </template>
 
 <script>
+import { Setting, Grid, Location, Orange } from '@element-plus/icons-vue'
+
 export default {
   name: 'ChartControls',
+  components: {
+    Setting,
+    Grid,
+    Location,
+    Orange
+  },
   data() {
     return {
       localOptions: {
@@ -41,22 +67,11 @@ export default {
 </script>
 
 <style scoped>
-.chart-controls {
-  margin-bottom: 1rem;
-  padding: 1rem;
-  background: #f5f5f5;
-  border-radius: 5px;
+.chart-controls-card {
+  margin-bottom: 15px;
 }
 
-.chart-controls h3 {
-  font-size: 1rem;
-  margin-bottom: 0.75rem;
-  color: #555;
-}
-
-.controls-grid {
-  display: flex;
-  gap: 1.5rem;
-  flex-wrap: wrap;
+:deep(.el-checkbox) {
+  margin-right: 0;
 }
 </style>

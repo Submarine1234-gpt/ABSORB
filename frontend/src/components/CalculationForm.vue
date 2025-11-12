@@ -1,218 +1,273 @@
 <template>
-  <div class="card">
-    <h2 class="card-title">New Calculation</h2>
+  <el-card shadow="hover" class="calculation-form-card">
+    <template #header>
+      <div class="card-header">
+        <span>
+          <el-icon><Edit /></el-icon>
+          New Calculation
+        </span>
+      </div>
+    </template>
     
-    <div v-if="errorMessage" class="alert alert-error">
-      {{ errorMessage }}
-    </div>
+    <el-alert
+      v-if="errorMessage"
+      :title="errorMessage"
+      type="error"
+      :closable="true"
+      @close="errorMessage = ''"
+      show-icon
+    />
     
-    <form @submit.prevent="submitCalculation">
-      <!-- File Uploads -->
-      <div class="form-section">
-        <h3>Input Files</h3>
-        
-        <div class="form-group">
-          <label for="substrate">Substrate CIF File *</label>
-          <input 
-            type="file" 
-            id="substrate" 
-            accept=".cif"
-            @change="handleFileChange('substrate', $event)"
-            required
-          />
-        </div>
-        
-        <div class="form-group">
-          <label for="adsorbate">Adsorbate CIF File *</label>
-          <input 
-            type="file" 
-            id="adsorbate" 
-            accept=".cif"
-            @change="handleFileChange('adsorbate', $event)"
-            required
-          />
-        </div>
-      </div>
-      
-      <!-- Basic Parameters -->
-      <div class="form-section">
-        <h3>Basic Parameters</h3>
-        
-        <div class="form-group">
-          <label for="surface_axis">Surface Axis</label>
-          <select v-model.number="params.surface_axis" id="surface_axis">
-            <option :value="0">X-axis (0)</option>
-            <option :value="1">Y-axis (1)</option>
-            <option :value="2">Z-axis (2)</option>
-          </select>
-        </div>
-        
-        <div class="form-group checkbox-group">
-          <input 
-            type="checkbox" 
-            v-model="params.place_on_bottom" 
-            id="place_on_bottom"
-          />
-          <label for="place_on_bottom">Place on bottom surface</label>
-        </div>
-        
-        <div class="form-group">
-          <label for="adsorption_height">
-            Adsorption Height (Å): {{ params.adsorption_height }}
-          </label>
-          <input 
-            type="range" 
-            v-model.number="params.adsorption_height"
-            id="adsorption_height"
-            min="0.1" 
-            max="10" 
-            step="0.1"
-          />
-        </div>
-        
-        <div class="form-group">
-          <label for="vacuum_thickness">
-            Vacuum Thickness (Å): {{ params.vacuum_thickness }}
-          </label>
-          <input 
-            type="range" 
-            v-model.number="params.vacuum_thickness"
-            id="vacuum_thickness"
-            min="5" 
-            max="50" 
-            step="1"
-          />
-        </div>
-        
-        <div class="form-group">
-          <label for="collision_threshold">
-            Collision Threshold (Å): {{ params.collision_threshold }}
-          </label>
-          <input 
-            type="range" 
-            v-model.number="params.collision_threshold"
-            id="collision_threshold"
-            min="0.5" 
-            max="3" 
-            step="0.1"
-          />
-        </div>
-      </div>
-      
-      <!-- Site Detection -->
-      <div class="form-section">
-        <h3>Site Detection</h3>
-        
-        <div class="form-group checkbox-group">
-          <input 
-            type="checkbox" 
-            v-model="params.hollow_sites_enabled" 
-            id="hollow_sites_enabled"
-          />
-          <label for="hollow_sites_enabled">Enable hollow site detection</label>
-        </div>
-        
-        <div v-if="params.hollow_sites_enabled" class="sub-params">
-          <div class="form-group">
-            <label for="knn_neighbors">
-              KNN Neighbors: {{ params.knn_neighbors }}
-            </label>
-            <input 
-              type="range" 
-              v-model.number="params.knn_neighbors"
-              id="knn_neighbors"
-              min="1" 
-              max="10" 
-              step="1"
-            />
-          </div>
-        </div>
-        
-        <div class="form-group checkbox-group">
-          <input 
-            type="checkbox" 
-            v-model="params.on_top_sites_enabled" 
-            id="on_top_sites_enabled"
-          />
-          <label for="on_top_sites_enabled">Enable on-top site detection</label>
-        </div>
-        
-        <div v-if="params.on_top_sites_enabled" class="sub-params">
-          <div class="form-group">
-            <label for="on_top_target_atom">Target Atom</label>
-            <input 
-              type="text" 
-              v-model="params.on_top_target_atom"
-              id="on_top_target_atom"
-              placeholder="e.g., O, C, N"
-            />
-          </div>
-        </div>
-      </div>
-      
-      <!-- Rotation Optimization -->
-      <div class="form-section">
-        <h3>Rotation Optimization</h3>
-        
-        <div class="form-group checkbox-group">
-          <input 
-            type="checkbox" 
-            v-model="params.rotation_method" 
-            id="rotation_method"
-          />
-          <label for="rotation_method">Use spherical sampling method</label>
-        </div>
-        
-        <div v-if="params.rotation_method" class="sub-params">
-          <div class="form-group">
-            <label for="rotation_count">
-              Rotation Count: {{ params.rotation_count }}
-            </label>
-            <input 
-              type="range" 
-              v-model.number="params.rotation_count"
-              id="rotation_count"
-              min="10" 
-              max="200" 
-              step="10"
-            />
-          </div>
+    <el-form
+      ref="formRef"
+      :model="formData"
+      label-position="top"
+      @submit.prevent="submitCalculation"
+    >
+      <!-- File Upload Section -->
+      <el-collapse v-model="activeCollapse" accordion>
+        <el-collapse-item title="Input Files" name="files">
+          <template #title>
+            <el-icon><Upload /></el-icon>
+            <span style="margin-left: 8px;">Input Files</span>
+            <el-tag v-if="filesUploaded" type="success" size="small" style="margin-left: 10px;">
+              {{ uploadedFilesCount }} files
+            </el-tag>
+          </template>
           
-          <div class="form-group">
-            <label for="rotation_step">
-              Rotation Step (degrees): {{ params.rotation_step }}
-            </label>
-            <input 
-              type="range" 
-              v-model.number="params.rotation_step"
-              id="rotation_step"
-              min="1" 
-              max="90" 
-              step="1"
+          <el-form-item label="Substrate CIF File" required>
+            <el-upload
+              class="upload-demo"
+              drag
+              :auto-upload="false"
+              :limit="1"
+              accept=".cif"
+              :on-change="(file) => handleFileChange('substrate', file)"
+              :file-list="substrateFileList"
+            >
+              <el-icon class="el-icon--upload"><upload-filled /></el-icon>
+              <div class="el-upload__text">
+                Drop substrate CIF file here or <em>click to upload</em>
+              </div>
+              <template #tip>
+                <div class="el-upload__tip">
+                  CIF file format only
+                </div>
+              </template>
+            </el-upload>
+          </el-form-item>
+          
+          <el-form-item label="Adsorbate CIF File" required>
+            <el-upload
+              class="upload-demo"
+              drag
+              :auto-upload="false"
+              :limit="1"
+              accept=".cif"
+              :on-change="(file) => handleFileChange('adsorbate', file)"
+              :file-list="adsorbateFileList"
+            >
+              <el-icon class="el-icon--upload"><upload-filled /></el-icon>
+              <div class="el-upload__text">
+                Drop adsorbate CIF file here or <em>click to upload</em>
+              </div>
+              <template #tip>
+                <div class="el-upload__tip">
+                  CIF file format only
+                </div>
+              </template>
+            </el-upload>
+          </el-form-item>
+        </el-collapse-item>
+        
+        <!-- Basic Parameters -->
+        <el-collapse-item title="Basic Parameters" name="basic">
+          <template #title>
+            <el-icon><Setting /></el-icon>
+            <span style="margin-left: 8px;">Basic Parameters</span>
+          </template>
+          
+          <el-form-item label="Surface Axis">
+            <el-select v-model="formData.params.surface_axis" placeholder="Select surface axis">
+              <el-option label="X-axis (0)" :value="0" />
+              <el-option label="Y-axis (1)" :value="1" />
+              <el-option label="Z-axis (2)" :value="2" />
+            </el-select>
+          </el-form-item>
+          
+          <el-form-item>
+            <el-checkbox v-model="formData.params.place_on_bottom">
+              Place on bottom surface
+            </el-checkbox>
+          </el-form-item>
+          
+          <el-form-item>
+            <template #label>
+              <span>Adsorption Height (Å): </span>
+              <el-tag size="small">{{ formData.params.adsorption_height }}</el-tag>
+            </template>
+            <el-slider
+              v-model="formData.params.adsorption_height"
+              :min="0.1"
+              :max="10"
+              :step="0.1"
+              show-stops
             />
-          </div>
-        </div>
-      </div>
+          </el-form-item>
+          
+          <el-form-item>
+            <template #label>
+              <span>Vacuum Thickness (Å): </span>
+              <el-tag size="small">{{ formData.params.vacuum_thickness }}</el-tag>
+            </template>
+            <el-slider
+              v-model="formData.params.vacuum_thickness"
+              :min="5"
+              :max="50"
+              :step="1"
+              show-stops
+            />
+          </el-form-item>
+          
+          <el-form-item>
+            <template #label>
+              <span>Collision Threshold (Å): </span>
+              <el-tag size="small">{{ formData.params.collision_threshold }}</el-tag>
+            </template>
+            <el-slider
+              v-model="formData.params.collision_threshold"
+              :min="0.5"
+              :max="3"
+              :step="0.1"
+              show-stops
+            />
+          </el-form-item>
+        </el-collapse-item>
+        
+        <!-- Site Detection -->
+        <el-collapse-item title="Site Detection" name="sites">
+          <template #title>
+            <el-icon><Location /></el-icon>
+            <span style="margin-left: 8px;">Site Detection</span>
+          </template>
+          
+          <el-form-item>
+            <el-checkbox v-model="formData.params.hollow_sites_enabled">
+              Enable hollow site detection
+            </el-checkbox>
+          </el-form-item>
+          
+          <el-form-item v-if="formData.params.hollow_sites_enabled" class="sub-params">
+            <template #label>
+              <span>KNN Neighbors: </span>
+              <el-tag size="small">{{ formData.params.knn_neighbors }}</el-tag>
+            </template>
+            <el-slider
+              v-model="formData.params.knn_neighbors"
+              :min="1"
+              :max="10"
+              :step="1"
+              show-stops
+            />
+          </el-form-item>
+          
+          <el-form-item>
+            <el-checkbox v-model="formData.params.on_top_sites_enabled">
+              Enable on-top site detection
+            </el-checkbox>
+          </el-form-item>
+          
+          <el-form-item v-if="formData.params.on_top_sites_enabled" label="Target Atom" class="sub-params">
+            <el-input
+              v-model="formData.params.on_top_target_atom"
+              placeholder="e.g., O, C, N"
+            >
+              <template #prepend>
+                <el-icon><Grid /></el-icon>
+              </template>
+            </el-input>
+          </el-form-item>
+        </el-collapse-item>
+        
+        <!-- Rotation Optimization -->
+        <el-collapse-item title="Rotation Optimization" name="rotation">
+          <template #title>
+            <el-icon><Refresh /></el-icon>
+            <span style="margin-left: 8px;">Rotation Optimization</span>
+          </template>
+          
+          <el-form-item>
+            <el-checkbox v-model="formData.params.rotation_method">
+              Use spherical sampling method
+            </el-checkbox>
+          </el-form-item>
+          
+          <el-form-item v-if="formData.params.rotation_method" class="sub-params">
+            <template #label>
+              <span>Rotation Count: </span>
+              <el-tag size="small">{{ formData.params.rotation_count }}</el-tag>
+            </template>
+            <el-slider
+              v-model="formData.params.rotation_count"
+              :min="10"
+              :max="200"
+              :step="10"
+              show-stops
+            />
+          </el-form-item>
+          
+          <el-form-item v-if="formData.params.rotation_method" class="sub-params">
+            <template #label>
+              <span>Rotation Step (degrees): </span>
+              <el-tag size="small">{{ formData.params.rotation_step }}</el-tag>
+            </template>
+            <el-slider
+              v-model="formData.params.rotation_step"
+              :min="1"
+              :max="90"
+              :step="1"
+              show-stops
+            />
+          </el-form-item>
+        </el-collapse-item>
+      </el-collapse>
       
       <!-- Submit Button -->
-      <button 
-        type="submit" 
-        class="btn btn-primary" 
-        :disabled="isRunning || !canSubmit"
-        style="width: 100%;"
-      >
-        {{ isRunning ? 'Running...' : 'Start Calculation' }}
-      </button>
-    </form>
-  </div>
+      <el-form-item style="margin-top: 20px;">
+        <el-button
+          type="primary"
+          native-type="submit"
+          :loading="isRunning"
+          :disabled="!canSubmit"
+          size="large"
+          style="width: 100%;"
+        >
+          <el-icon v-if="!isRunning"><VideoPlay /></el-icon>
+          {{ isRunning ? 'Calculation Running...' : 'Start Calculation' }}
+        </el-button>
+      </el-form-item>
+    </el-form>
+  </el-card>
 </template>
 
 <script>
+import { Edit, Upload, UploadFilled, Setting, Location, Grid, Refresh, VideoPlay } from '@element-plus/icons-vue'
+import { ElMessage } from 'element-plus'
 import api from '../services/api'
 import { DEFAULT_PARAMS } from '../utils/constants'
 
 export default {
   name: 'CalculationForm',
+  components: {
+    Edit,
+    Upload,
+    UploadFilled,
+    Setting,
+    Location,
+    Grid,
+    Refresh,
+    VideoPlay
+  },
   props: {
     isRunning: {
       type: Boolean,
@@ -221,38 +276,59 @@ export default {
   },
   data() {
     return {
-      files: {
-        substrate: null,
-        adsorbate: null
+      activeCollapse: ['files'],
+      formData: {
+        files: {
+          substrate: null,
+          adsorbate: null
+        },
+        params: { ...DEFAULT_PARAMS }
       },
-      params: { ...DEFAULT_PARAMS },
+      substrateFileList: [],
+      adsorbateFileList: [],
       errorMessage: ''
     }
   },
   computed: {
     canSubmit() {
-      return this.files.substrate && this.files.adsorbate
+      return this.formData.files.substrate && this.formData.files.adsorbate
+    },
+    filesUploaded() {
+      return this.formData.files.substrate || this.formData.files.adsorbate
+    },
+    uploadedFilesCount() {
+      let count = 0
+      if (this.formData.files.substrate) count++
+      if (this.formData.files.adsorbate) count++
+      return count
     }
   },
   methods: {
-    handleFileChange(type, event) {
-      const file = event.target.files[0]
-      if (file) {
-        this.files[type] = file
+    handleFileChange(type, uploadFile) {
+      this.formData.files[type] = uploadFile.raw
+      if (type === 'substrate') {
+        this.substrateFileList = [uploadFile]
+      } else {
+        this.adsorbateFileList = [uploadFile]
       }
     },
     
     async submitCalculation() {
       this.errorMessage = ''
       
+      if (!this.canSubmit) {
+        ElMessage.warning('Please upload both substrate and adsorbate files')
+        return
+      }
+      
       try {
         // Create FormData
         const formData = new FormData()
-        formData.append('substrate_file', this.files.substrate)
-        formData.append('adsorbate_file', this.files.adsorbate)
+        formData.append('substrate_file', this.formData.files.substrate)
+        formData.append('adsorbate_file', this.formData.files.adsorbate)
         
         // Add all parameters
-        for (const [key, value] of Object.entries(this.params)) {
+        for (const [key, value] of Object.entries(this.formData.params)) {
           formData.append(key, value)
         }
         
@@ -261,11 +337,14 @@ export default {
         
         if (response.success) {
           this.$emit('calculation-started', response)
+          ElMessage.success('Calculation started successfully!')
         } else {
           this.errorMessage = response.message || 'Failed to start calculation'
+          ElMessage.error(this.errorMessage)
         }
       } catch (error) {
         this.errorMessage = error.response?.data?.message || 'An error occurred'
+        ElMessage.error(this.errorMessage)
         console.error('Calculation submission failed:', error)
       }
     }
@@ -274,34 +353,37 @@ export default {
 </script>
 
 <style scoped>
-.form-section {
-  margin-bottom: 1.5rem;
-  padding-bottom: 1.5rem;
-  border-bottom: 1px solid #e0e0e0;
+.calculation-form-card {
+  margin-bottom: 20px;
 }
 
-.form-section:last-of-type {
-  border-bottom: none;
-}
-
-.form-section h3 {
-  font-size: 1.1rem;
-  margin-bottom: 1rem;
-  color: #667eea;
+.card-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
 }
 
 .sub-params {
-  margin-left: 1.5rem;
-  padding-left: 1rem;
-  border-left: 2px solid #e0e0e0;
+  margin-left: 20px;
+  padding-left: 15px;
+  border-left: 2px solid var(--el-border-color-light);
 }
 
-input[type="range"] {
+:deep(.el-collapse-item__header) {
+  font-weight: 500;
+  padding-left: 10px;
+}
+
+:deep(.el-form-item__label) {
+  font-weight: 500;
+}
+
+.upload-demo {
   width: 100%;
-  cursor: pointer;
 }
 
-input[type="file"] {
-  padding: 0.5rem;
+:deep(.el-upload-dragger) {
+  padding: 20px;
 }
 </style>

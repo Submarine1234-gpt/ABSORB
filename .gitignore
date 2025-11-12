@@ -21,6 +21,8 @@ backend/user_uploads/
 frontend/node_modules/
 frontend/dist/
 frontend/.vite/
+frontend/auto-imports.d.ts
+frontend/components.d.ts
 
 # IDEs
 .vscode/
