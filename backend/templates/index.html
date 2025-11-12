@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ABSORB - Surface Adsorption Platform</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0 0 10px 0;
+            font-size: 2.5em;
+        }
+        .header p {
+            margin: 0;
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+        .content {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .info-box {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        .info-box h3 {
+            margin-top: 0;
+            color: #1976d2;
+        }
+        .feature-list {
+            list-style: none;
+            padding: 0;
+        }
+        .feature-list li {
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+        .feature-list li:last-child {
+            border-bottom: none;
+        }
+        .feature-list li:before {
+            content: "✓ ";
+            color: #4caf50;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        .cta-button {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 30px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-size: 1.1em;
+            margin: 20px 0;
+            transition: transform 0.2s;
+        }
+        .cta-button:hover {
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>ABSORB</h1>
+        <p>Surface Adsorption Calculation Platform</p>
+    </div>
+    
+    <div class="content">
+        <div class="info-box">
+            <h3>Welcome to ABSORB</h3>
+            <p>This is a placeholder page for the backend API. The full Vue.js frontend should be built and served separately.</p>
+        </div>
+        
+        <h2>Core Features</h2>
+        <ul class="feature-list">
+            <li>Automatic surface adsorption site identification (hollow sites and on-top sites)</li>
+            <li>Geometry optimization with rotation algorithms</li>
+            <li>Adsorption energy calculations using CHGNet</li>
+            <li>Real-time calculation log streaming</li>
+            <li>3D interactive result visualization</li>
+            <li>Calculation history management</li>
+            <li>Result download as ZIP archives</li>
+        </ul>
+        
+        <h2>Technology Stack</h2>
+        <ul class="feature-list">
+            <li>Backend: Flask + Python + ASE + CHGNet</li>
+            <li>Frontend: Vue.js 3 + Vite + Plotly.js</li>
+            <li>Architecture: Modular with factory patterns</li>
+        </ul>
+        
+        <div class="info-box">
+            <h3>API Endpoints</h3>
+            <ul>
+                <li><code>POST /run-calculation</code> - Submit new calculation</li>
+                <li><code>GET /check-status/&lt;session_id&gt;</code> - Check calculation status</li>
+                <li><code>GET /stream-logs/&lt;session_id&gt;</code> - Stream calculation logs</li>
+                <li><code>GET /get-viz-data/&lt;session_id&gt;/&lt;filename&gt;</code> - Get visualization data</li>
+                <li><code>GET /get-results</code> - Get all results</li>
+                <li><code>GET /download-result/&lt;session_id&gt;</code> - Download results ZIP</li>
+                <li><code>GET /api/health</code> - Health check</li>
+            </ul>
+        </div>
+        
+        <p style="text-align: center; margin-top: 30px;">
+            <a href="/api/health" class="cta-button">Check API Health</a>
+        </p>
+    </div>
+</body>
+</html>
